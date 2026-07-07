@@ -6,23 +6,28 @@ to TimescaleDB and Kafka over the compose network.
 
 import logging
 import os
+from contextlib import asynccontextmanager
 
 from aiokafka import AIOKafkaProducer
 from fastapi import FastAPI
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import create_async_engine
+
+from app.db import engine, init_db
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("agiot.backend")
 
-DATABASE_URL = os.environ.get(
-    "DATABASE_URL", "postgresql+asyncpg://agiot:agiot@timescaledb:5432/agiot"
-)
 KAFKA_BOOTSTRAP_SERVERS = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "kafka:9092")
 
-app = FastAPI(title="AgIoT MVP Backend")
 
-engine = create_async_engine(DATABASE_URL)
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    await init_db(engine)
+    yield
+    await engine.dispose()
+
+
+app = FastAPI(title="AgIoT MVP Backend", lifespan=lifespan)
 
 
 @app.get("/health")
