@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+aiokafka
+sqlalchemy>=2.0,<3.0
+asyncpg
+pydantic
