@@ -87,7 +87,8 @@ class HourlyReadingOut(BaseModel):
     """Hourly rollup of one station's readings (from the continuous aggregate).
 
     Buckets are aligned to the start of the hour, UTC. The current (incomplete)
-    hour is not materialized and will not appear.
+    hour is included via real-time aggregation, so its stats will still change
+    as more readings arrive.
     """
 
     station_id: int = Field(description="Station the rollup belongs to.", examples=[17])

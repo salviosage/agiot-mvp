@@ -121,6 +121,13 @@ _TIMESCALE_DDL = [
     WITH NO DATA
     """,
     #
+    # Real-time aggregation: queries on the view union materialized buckets
+    # with an on-the-fly rollup of not-yet-materialized raw rows. Without this
+    # a cold stack serves empty hourly results for up to ~1.5h (refresh
+    # schedule + end_offset); with it, hourly data is queryable immediately at
+    # a small per-query cost that the refresh policy keeps bounded.
+    "ALTER MATERIALIZED VIEW readings_hourly SET (timescaledb.materialized_only = false)",
+    #
     # Refresh the rollup every 30 min. end_offset 1h excludes the still-open
     # bucket (avoids churn re-materializing partial hours); start_offset 3d
     # re-covers a window where late/corrected data may still arrive.
